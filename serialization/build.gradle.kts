@@ -38,6 +38,7 @@ kotlin {
             dependencies {
                 api(kotlin("stdlib-common"))
                 api("org.jetbrains.kotlinx:kotlinx-serialization-core:${pw.binom.Versions.KOTLINX_SERIALIZATION_VERSION}")
+                api(project(":annotation"))
             }
         }
     }

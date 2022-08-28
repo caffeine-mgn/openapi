@@ -8,5 +8,5 @@ pluginManagement {
     }
 }
 rootProject.name = "openapi"
-include(":annatation")
+include(":annotation")
 include(":serialization")
