@@ -1,4 +1,4 @@
-package pw.binom.openapi.annatation
+package pw.binom.openapi.annotation
 
 import kotlinx.serialization.SerialInfo
 
