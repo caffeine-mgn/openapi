@@ -24,5 +24,32 @@ enum class StdFormat {
     DOUBLE,
 
     @SerialName("date")
-    DATE
+    DATE,
+
+    @SerialName("date-time")
+    DATE_TIME,
+
+    @SerialName("byte")
+    BASE64,
+
+    @SerialName("binary")
+    BINARY,
+
+    @SerialName("email")
+    EMAIL,
+
+    @SerialName("uuid")
+    UUID,
+
+    @SerialName("uri")
+    URI,
+
+    @SerialName("hostname")
+    HOSTNAME,
+
+    @SerialName("ipv4")
+    IPV4,
+
+    @SerialName("ipv6")
+    IPV6,
 }

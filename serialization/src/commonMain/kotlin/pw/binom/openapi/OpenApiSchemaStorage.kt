@@ -18,7 +18,10 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
         description: SerialDescriptor,
         hint: String?,
         example: String?,
-        format: StdFormat?
+        format: StdFormat?,
+        pattern: String?,
+        minLength: Long?,
+        maxLength: Long?,
     ): Property {
         val realDescription = if (description.kind is SerialKind.CONTEXTUAL) {
             serializersModule.getContextualDescriptor(description)
@@ -28,12 +31,18 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
         }
         val example = example ?: description.annotations.find { it is Example }?.let { it as Example }?.value
         val format = format ?: description.getAnnotation<Format>()?.value
+        val pattern = pattern ?: description.getAnnotation<Pattern>()?.value
+        val minLength = minLength ?: description.getAnnotation<MinLength>()?.value
+        val maxLength = maxLength ?: description.getAnnotation<MaxLength>()?.value
         return when (realDescription.kind) {
             PrimitiveKind.STRING -> Property.Element(
                 format = format,
                 type = Type.STRING,
                 description = hint,
                 example = example,
+                pattern = pattern,
+                minLength = minLength,
+                maxLength = maxLength,
             )
 
             PrimitiveKind.BOOLEAN -> Property.Element(
@@ -41,6 +50,9 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
                 type = Type.BOOLEAN,
                 description = hint,
                 example = example,
+                pattern = pattern,
+                minLength = minLength,
+                maxLength = maxLength,
             )
 
             PrimitiveKind.INT -> Property.Element(
@@ -48,6 +60,9 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
                 type = Type.INTEGER,
                 description = hint,
                 example = example,
+                pattern = pattern,
+                minLength = minLength,
+                maxLength = maxLength,
             )
 
             PrimitiveKind.LONG -> Property.Element(
@@ -55,6 +70,9 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
                 type = Type.INTEGER,
                 description = hint,
                 example = example,
+                pattern = pattern,
+                minLength = minLength,
+                maxLength = maxLength,
             )
 
             PrimitiveKind.BYTE -> Property.Element(
@@ -62,6 +80,9 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
                 type = Type.INTEGER,
                 description = hint,
                 example = example,
+                pattern = pattern,
+                minLength = minLength,
+                maxLength = maxLength,
             )
 
             PrimitiveKind.SHORT -> Property.Element(
@@ -69,6 +90,9 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
                 type = Type.INTEGER,
                 description = hint,
                 example = example,
+                pattern = pattern,
+                minLength = minLength,
+                maxLength = maxLength,
             )
 
             PrimitiveKind.FLOAT -> Property.Element(
@@ -76,6 +100,9 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
                 type = Type.NUMBER,
                 description = hint,
                 example = example,
+                pattern = pattern,
+                minLength = minLength,
+                maxLength = maxLength,
             )
 
             PrimitiveKind.DOUBLE -> Property.Element(
@@ -83,6 +110,9 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
                 type = Type.NUMBER,
                 description = hint,
                 example = example,
+                pattern = pattern,
+                minLength = minLength,
+                maxLength = maxLength,
             )
 
             is SerialKind.ENUM -> {
@@ -100,9 +130,19 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
             is StructureKind.LIST -> {
                 val d = realDescription.getElementDescriptor(0)
                 Property.Array(
-                    items = getProperty(description = d, hint = null, example = null, format = null),
+                    items = getProperty(
+                        description = d,
+                        hint = null,
+                        example = null,
+                        format = null,
+                        pattern = pattern,
+                        maxLength = null,
+                        minLength = null
+                    ),
                     type = Type.ARRAY,
                     description = hint,
+                    minLength = minLength,
+                    maxLength = maxLength,
                 )
             }
 
@@ -163,6 +203,9 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
             val propertyTextDescription = description.getElementAnnotation<Description>(index)?.value
             val exampleDescription = description.getElementAnnotation<Example>(index)?.value
             val format = description.getElementAnnotation<Format>(index)?.value
+            val pattern = description.getElementAnnotation<Pattern>(index)?.value
+            val minLength = description.getElementAnnotation<MinLength>(index)?.value
+            val maxLength = description.getElementAnnotation<MaxLength>(index)?.value
             val name = description.getElementName(index)
             val propertyDescription = description.getElementDescriptor(index)
             val isRequired = !description.isElementOptional(index)
@@ -171,6 +214,9 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
                 hint = propertyTextDescription,
                 example = exampleDescription,
                 format = format,
+                pattern = pattern,
+                minLength = minLength,
+                maxLength = maxLength,
             )
             if (isRequired) {
                 required += name
