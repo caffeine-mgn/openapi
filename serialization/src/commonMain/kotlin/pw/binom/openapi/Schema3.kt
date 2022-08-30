@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Schema3(
     val type: Type?,
-    val format: Format?,
+    val format: StdFormat?,
 )

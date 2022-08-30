@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 class Property(
     val type: Type? = null,
-    val format: Format? = null,
+    val format: StdFormat? = null,
     val description: String? = null,
     val items: Property? = null,
     @SerialName("\$ref")
@@ -15,7 +15,7 @@ class Property(
     val example: String? = null,
 ) {
     companion object {
-        fun Element(type: Type, description: String?, format: Format?, example: String?) =
+        fun Element(type: Type, description: String?, format: StdFormat?, example: String?) =
             Property(type = type, description = description, format = format, example = example)
 
         fun Array(type: Type, description: String?, items: Property?) =

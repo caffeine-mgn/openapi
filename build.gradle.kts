@@ -1,3 +1,5 @@
+import pw.binom.publish.propertyOrNull
+
 /*
 plugins {
     id 'org.jetbrains.kotlin.multiplatform' version '1.6.10'
@@ -43,7 +45,8 @@ test {
 
 allprojects {
     group = "pw.binom.openapi"
-    version = "0.1"
+    version = System.getenv("GITHUB_REF_NAME") ?: propertyOrNull("version")?.takeIf { it != "unspecified" }
+            ?: "1.0.0-SNAPSHOT"
 
     repositories {
         mavenLocal()

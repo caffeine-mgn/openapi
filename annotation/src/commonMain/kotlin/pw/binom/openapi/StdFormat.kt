@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class Format {
+enum class StdFormat {
     @SerialName("int8")
     INT8,
 
@@ -22,4 +22,7 @@ enum class Format {
 
     @SerialName("double")
     DOUBLE,
+
+    @SerialName("date")
+    DATE
 }
