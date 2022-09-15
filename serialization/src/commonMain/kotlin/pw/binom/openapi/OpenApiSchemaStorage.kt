@@ -12,16 +12,16 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
     private val schemaDuplicateNames = HashMap<String, Int>()
 
     fun buildSchemas() =
-        Schemas(internalSchemaNames)
+        Components(internalSchemaNames)
 
     fun getProperty(
         description: SerialDescriptor,
-        hint: String?,
-        example: String?,
-        format: StdFormat?,
-        pattern: String?,
-        minLength: Long?,
-        maxLength: Long?,
+        hint: String? = null,
+        example: String? = null,
+        format: StdFormat? = null,
+        pattern: String? = null,
+        minLength: Long? = null,
+        maxLength: Long? = null,
     ): Property {
         val realDescription = if (description.kind is SerialKind.CONTEXTUAL) {
             serializersModule.getContextualDescriptor(description)
@@ -153,7 +153,7 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
                         type = Type.OBJECT,
                     )
                 } else {
-                    getOrCreateSchema(realDescription)
+                    val schema = getOrCreateSchema(realDescription)
                     Property.Reference(
                         description = hint,
                         ref = "#/components/schemas/${realDescription.serialName.removeSuffix("?")}"
@@ -161,7 +161,26 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
                 }
             }
 
-            else -> TODO("->${realDescription.kind}")
+            is StructureKind.MAP -> {
+                val key = realDescription.getElementDescriptor(0).nullable
+                val value = realDescription.getElementDescriptor(1)
+
+                if (key == String.serializer().descriptor.nullable) {
+                    val valueProperty = getProperty(
+                        description = value,
+                    )
+                    Property(
+                        description = hint,
+                        type = Type.OBJECT,
+                        additionalProperties = valueProperty,
+                        uniqueItems = true
+                    )
+                } else {
+                    TODO("$key-$value")
+                }
+            }
+
+            else -> TODO("->${realDescription.kind} in ${realDescription.serialName}")
         }
     }
 
@@ -182,23 +201,28 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
 
         var schemaName = description.serialName.removeSuffix("?")
         val lastDuplicateName = schemaDuplicateNames[schemaName]
+        println("processing $schemaName, lastDuplicateName=$lastDuplicateName")
         if (lastDuplicateName != null) {
             val id = lastDuplicateName + 1
+            println("created with order $schemaName -> $schemaName$id")
             schemaName = "$schemaName$id"
             schemaDuplicateNames[schemaName] = id
         } else {
             val oldDescriptionWithSameName = internalSchemaNames[schemaName]
             if (oldDescriptionWithSameName != null) {
-                internalSchemaNames.remove(schemaName)
-                internalSchemaNames["${schemaName}1"] = oldDescriptionWithSameName
-                internalSchemaNames["${schemaName}2"] = schema
-                schemaDuplicateNames[schemaName] = 2
-                schemaName = "${schemaName}2"
+//                internalSchemaNames.remove(schemaName)
+//                internalSchemaNames["${schemaName}1"] = oldDescriptionWithSameName
+                internalSchemaNames["${schemaName}1"] = schema
+                schemaDuplicateNames[schemaName] = 1
+//                println("renamed $schemaName -> ${schemaName}1")
+                println("created $schemaName -> ${schemaName}1")
+                schemaName = "${schemaName}1"
             }
         }
 
         internalSchemas[nullableDescription] = schema
         internalSchemaNames[schemaName] = schema
+        println("saved as $schemaName")
         repeat(description.elementsCount) { index ->
             val propertyTextDescription = description.getElementAnnotation<Description>(index)?.value
             val exampleDescription = description.getElementAnnotation<Example>(index)?.value
@@ -221,6 +245,9 @@ class OpenApiSchemaStorage(private val serializersModule: SerializersModule) {
             if (isRequired) {
                 required += name
             }
+        }
+        if (schema.required?.isEmpty() == true) {
+            schema.required = null
         }
         return schema
     }

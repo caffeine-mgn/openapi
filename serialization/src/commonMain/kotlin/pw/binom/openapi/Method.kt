@@ -10,4 +10,5 @@ data class Method(
     val requestBody: RequestBody?,
     val responses: Map<String, RequestBody>,
     val tags: List<String>?,
+    val security: List<Map<String, List<String>>>? = null
 )

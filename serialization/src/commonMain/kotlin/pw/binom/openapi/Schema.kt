@@ -3,9 +3,9 @@ package pw.binom.openapi
 import kotlinx.serialization.Serializable
 
 @Serializable
-class Schema(
+data class Schema(
     val description: String? = null,
     val type: Type? = null,
     val properties: Map<String, Property>? = null,
-    val required: List<String>? = null,
+    var required: List<String>? = null,
 )

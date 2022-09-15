@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class Property(
+data class Property(
     val type: Type? = null,
     val format: StdFormat? = null,
     val description: String? = null,
@@ -19,6 +19,7 @@ class Property(
     val minLength: Long? = null,
     val maxLength: Long? = null,
     val pattern: String? = null,
+    val additionalProperties: Property? = null
 ) {
     companion object {
         fun Element(
