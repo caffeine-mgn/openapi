@@ -41,6 +41,19 @@ kotlin {
                 api(project(":annotation"))
             }
         }
+
+        val commonTest by getting {
+            dependencies {
+                api(kotlin("test-common"))
+                api(kotlin("test-annotations-common"))
+            }
+        }
+        val jvmTest by getting {
+            dependsOn(commonTest)
+            dependencies {
+                api(kotlin("test-junit"))
+            }
+        }
     }
 }
 apply<pw.binom.publish.plugins.PrepareProject>()
